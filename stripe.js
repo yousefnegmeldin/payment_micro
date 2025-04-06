@@ -1,4 +1,4 @@
-require('dotenv').config(); // <- make sure this is at the top
+require('dotenv').config(); 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const db = require('./db');
 const APP_URL = "http://localhost:3000"
