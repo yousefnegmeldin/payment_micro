@@ -1,10 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { handleStripeWebhook } = require('./webhook');
 const { createCheckoutSession } = require('./stripe');
 require('dotenv').config();
 
 const app = express();
-app.use(bodyParser.json());
+app.post('/webhook',bodyParser.raw({ type: 'application/json' }), handleStripeWebhook);
+
+app.use(express.json());
 
 app.post('/create-payment', async (req, res) => {
   const { price, user_booking_id } = req.body;
