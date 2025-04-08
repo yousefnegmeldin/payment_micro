@@ -1,7 +1,8 @@
-require('dotenv').config(); 
+const { prisma } = require('./db');
+require('dotenv').config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const db = require('./db');
-const APP_URL = "http://localhost:3000"
+const APP_URL = "http://localhost:3000";
+
 async function createCheckoutSession({ price, user_booking_id }) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -20,10 +21,14 @@ async function createCheckoutSession({ price, user_booking_id }) {
     cancel_url: `${APP_URL}/cancel`,
   });
 
-  await db.query(`
-    INSERT INTO payments (price, stripe_checkout_session_id, user_booking_id, status)
-    VALUES ($1, $2, $3, 'pending')
-  `, [price, session.id, user_booking_id]);
+  await prisma.payments.create({
+    data: {
+      price: price,
+      stripeCheckoutSessionId: session.id,
+      userBookingId: user_booking_id,
+      status: 'pending',
+    },
+  });
 
   return session.url;
 }

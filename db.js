@@ -1,11 +1,9 @@
-const { Pool } = require('pg');
-require('dotenv').config();
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // Required for Neon
-});
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  query: async (query, params) => {
+    throw new Error("Direct SQL queries are not supported with Prisma. Use Prisma's query methods instead.");
+  },
+  prisma, // Export the Prisma client for use in your application
 };
