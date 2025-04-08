@@ -24,8 +24,8 @@ async function createCheckoutSession({ price, user_booking_id }) {
   await prisma.payments.create({
     data: {
       price: price,
-      stripeCheckoutSessionId: session.id,
-      userBookingId: user_booking_id,
+      stripe_checkout_session_id: session.id,
+      user_booking_id: user_booking_id,
       status: 'pending',
     },
   });
