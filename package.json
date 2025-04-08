@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/yousefnegmeldin/payment_micro#readme",
   "dependencies": {
+    "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "pg": "^8.14.1",
+    "prisma": "^6.5.0",
     "stripe": "^18.0.0"
   }
 }
