@@ -4,6 +4,14 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const APP_URL = "http://localhost:3000";
 
 async function createCheckoutSession({ price, user_booking_id }) {
+  const existingPayment = await prisma.payments.findUnique({
+    where: { user_booking_id },
+  });
+
+  if (existingPayment) {
+    return existingPayment.checkout_url; // ✅ use stored full URL
+  }
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [{
@@ -12,7 +20,7 @@ async function createCheckoutSession({ price, user_booking_id }) {
         product_data: {
           name: 'Ride Booking',
         },
-        unit_amount: price * 100, // price in cents
+        unit_amount: price * 100,
       },
       quantity: 1,
     }],
@@ -23,9 +31,10 @@ async function createCheckoutSession({ price, user_booking_id }) {
 
   await prisma.payments.create({
     data: {
-      price: price,
+      price,
       stripe_checkout_session_id: session.id,
-      user_booking_id: user_booking_id,
+      checkout_url: session.url, // ✅ store full URL
+      user_booking_id,
       status: 'pending',
     },
   });
@@ -33,4 +42,11 @@ async function createCheckoutSession({ price, user_booking_id }) {
   return session.url;
 }
 
-module.exports = { createCheckoutSession };
+async function isSuccessfulPayment(user_booking_id) {
+  const existingPayment = await prisma.payments.findUnique({
+    where: { user_booking_id },
+  });
+  return existingPayment.status == "succeeded"
+}
+
+module.exports = { createCheckoutSession, isSuccessfulPayment };

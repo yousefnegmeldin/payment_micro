@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { handleStripeWebhook } = require('./webhook');
-const { createCheckoutSession } = require('./stripe');
+const { createCheckoutSession, isSuccessfulPayment } = require('./stripe');
 require('dotenv').config();
 
 const app = express();
@@ -18,7 +18,8 @@ app.post('/create-payment', async (req, res) => {
 
   try {
     const checkoutUrl = await createCheckoutSession({ price, user_booking_id });
-    res.json({ url: checkoutUrl });
+    successValue = await isSuccessfulPayment(user_booking_id)
+    res.json({ url: checkoutUrl, success: successValue });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Something went wrong' });
