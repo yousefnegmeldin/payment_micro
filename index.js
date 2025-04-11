@@ -26,7 +26,7 @@ app.post('/create-payment', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4002;
 app.listen(PORT, () => {
   console.log(`Stripe microservice running on port ${PORT}`);
 });
