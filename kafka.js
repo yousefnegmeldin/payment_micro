@@ -28,17 +28,6 @@ async function emitPaymentSucceededEvent({ bookingId, rideId, userId }) {
   });
 }
 
-async function emitPaymentUrlCreatedEvent({bookingId, checkoutUrl}) {
-  await producer.send({
-    topic: 'payment-url-created',
-    messages: [
-      {
-        key: String(bookingId),
-        value: JSON.stringify({bookingId,checkoutUrl})
-      },
-    ],
-  });
-}
 
 async function startKafkaConsumer() {
   await consumer.connect();
@@ -70,6 +59,5 @@ async function startKafkaConsumer() {
 module.exports = {
   connectKafkaProducer,
   startKafkaConsumer,
-  emitPaymentUrlCreatedEvent,
   emitPaymentSucceededEvent,
 };

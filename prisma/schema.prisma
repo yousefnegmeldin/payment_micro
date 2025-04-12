@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]
 }
 
 datasource db {
@@ -7,7 +8,52 @@ datasource db {
   url      = env("DATABASE_URI")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Booking {
+  id               Int       @id @default(autoincrement())
+  ride_id          Int
+  user_id          Int
+  price            Int
+  successful       Boolean   @default(false)
+  meeting_point_id Int?
+  status           Status    @default(PENDING)
+  LocalRide        LocalRide @relation(fields: [ride_id], references: [id])
+}
+
+model LocalRide {
+  id                    Int                     @id
+  driver_id             Int
+  departure_time        DateTime
+  seats_available       Int
+  status                RideStatus              @default(PENDING)
+  girls_only            Boolean                 @default(false)
+  to_giu                Boolean
+  area_id               Int
+  Booking               Booking[]
+  LocalRideMeetingPoint LocalRideMeetingPoint[]
+  LocalRidePassenger    LocalRidePassenger[]
+}
+
+model LocalRideMeetingPoint {
+  id               Int       @id @default(autoincrement())
+  ride_id          Int
+  meeting_point_id Int
+  price            Int
+  order_index      Int
+  LocalRide        LocalRide @relation(fields: [ride_id], references: [id], onDelete: Cascade)
+
+  @@unique([ride_id, meeting_point_id])
+}
+
+model LocalRidePassenger {
+  id             Int       @id @default(autoincrement())
+  ride_id        Int
+  passenger_id   Int
+  passenger_name String
+  LocalRide      LocalRide @relation(fields: [ride_id], references: [id], onDelete: Cascade)
+
+  @@unique([ride_id, passenger_id])
+}
+
 model payments {
   id                         Int       @id @default(autoincrement())
   price                      Int?
@@ -19,8 +65,16 @@ model payments {
   created_at                 DateTime? @default(now()) @db.Timestamp(6)
 }
 
-model Booking {
-  id              Int    @id
-  ride_id         Int
-  user_id         Int
+enum RideStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Status {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
 }
