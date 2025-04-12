@@ -1,7 +1,9 @@
 const { prisma } = require('./db');
+const { emitPaymentUrlCreatedEvent } = require('./kafka');
 require('dotenv').config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const APP_URL = "http://localhost:3000";
+
 
 async function createCheckoutSession({ price, user_booking_id }) {
   const existingPayment = await prisma.payments.findUnique({
@@ -33,10 +35,15 @@ async function createCheckoutSession({ price, user_booking_id }) {
     data: {
       price,
       stripe_checkout_session_id: session.id,
-      checkout_url: session.url, // ✅ store full URL
+      checkout_url: session.url,
       user_booking_id,
       status: 'pending',
     },
+  });
+
+  await emitPaymentUrlCreatedEvent({
+    bookingId: booking.id,
+    checkoutUrl: session.url
   });
 
   return session.url;

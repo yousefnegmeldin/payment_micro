@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { handleStripeWebhook } = require('./webhook');
 const { createCheckoutSession, isSuccessfulPayment } = require('./stripe');
-const { connectKafkaProducer } = require('./kafka');
+const { connectKafkaProducer, startKafkaConsumer } = require('./kafka');
 require('dotenv').config();
 
 const app = express();
@@ -30,6 +30,7 @@ const PORT = process.env.PORT || 4002;
 
 async function start() {
   await connectKafkaProducer();
+  await startKafkaConsumer(); 
   app.listen(PORT, () => {
     console.log(`Stripe microservice running on port ${PORT}`);
   });
