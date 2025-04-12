@@ -3,6 +3,7 @@ require('dotenv').config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const APP_URL = "http://localhost:3000";
 
+
 async function createCheckoutSession({ price, user_booking_id }) {
   const existingPayment = await prisma.payments.findUnique({
     where: { user_booking_id },
@@ -33,7 +34,7 @@ async function createCheckoutSession({ price, user_booking_id }) {
     data: {
       price,
       stripe_checkout_session_id: session.id,
-      checkout_url: session.url, // ✅ store full URL
+      checkout_url: session.url,
       user_booking_id,
       status: 'pending',
     },

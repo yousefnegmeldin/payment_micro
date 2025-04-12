@@ -2,11 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { handleStripeWebhook } = require('./webhook');
 const { createCheckoutSession, isSuccessfulPayment } = require('./stripe');
+const { connectKafkaProducer, startKafkaConsumer } = require('./kafka');
 require('dotenv').config();
 
 const app = express();
-app.post('/webhook',bodyParser.raw({ type: 'application/json' }), handleStripeWebhook);
-
+app.post('/webhook', bodyParser.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
 
 app.post('/create-payment', async (req, res) => {
@@ -18,7 +18,7 @@ app.post('/create-payment', async (req, res) => {
 
   try {
     const checkoutUrl = await createCheckoutSession({ price, user_booking_id });
-    successValue = await isSuccessfulPayment(user_booking_id)
+    const successValue = await isSuccessfulPayment(user_booking_id);
     res.json({ url: checkoutUrl, success: successValue });
   } catch (err) {
     console.error(err);
@@ -27,6 +27,13 @@ app.post('/create-payment', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4002;
-app.listen(PORT, () => {
-  console.log(`Stripe microservice running on port ${PORT}`);
-});
+
+async function start() {
+  await connectKafkaProducer();
+  await startKafkaConsumer(); 
+  app.listen(PORT, () => {
+    console.log(`Stripe microservice running on port ${PORT}`);
+  });
+}
+
+start();
