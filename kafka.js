@@ -16,7 +16,7 @@ async function connectKafkaProducer() {
   console.log('Kafka producer connected (Stripe)');
 }
 
-async function emitPaymentSucceededEvent({ bookingId, rideId, userId }) {
+async function emitPaymentSucceededEvent({ bookingId, rideId, userId,email }) {
   try {
     console.log(`Emitting payment-succeeded event for booking ${bookingId}`);
     await producer.send({
@@ -24,7 +24,7 @@ async function emitPaymentSucceededEvent({ bookingId, rideId, userId }) {
       messages: [
         {
           key: String(bookingId),
-          value: JSON.stringify({ bookingId, rideId, userId }),
+          value: JSON.stringify({ bookingId, rideId, userId,email }),
         },
       ],
     });
