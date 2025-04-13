@@ -52,7 +52,8 @@ async function handleStripeWebhook(req, res) {
         await emitPaymentSucceededEvent({
           bookingId: payment.user_booking_id,
           rideId: payment.ride_id,
-          userId: payment.user_id
+          userId: payment.user_id,
+          email: payment.user_email,
         });
       } else {
         console.error('No payment record found for session:', session.id);

@@ -72,34 +72,37 @@ async function startKafkaConsumer() {
 
           if (topic === 'start-payment') {
             // Handle start-payment event
-            const { bookingId, price, rideId, userId } = data;
+            const { bookingId, price, rideId, userId, email } = data;
             console.log(`Processing start-payment for booking ${bookingId} with price ${price}`);
             
             const checkoutUrl = await createCheckoutSession({ 
               price, 
               user_booking_id: bookingId,
               rideId,
-              userId
+              userId,
+              email 
             });
             console.log(`Created payment for booking ${bookingId}, checkout URL: ${checkoutUrl}`);
           } 
           else if (topic === 'booking-created') {
             // Handle booking-created event
-            const { bookingId, price, rideId, userId } = data;
+            const { bookingId, price, rideId, userId, userEmail } = data;
             
             // If the message has different field names, extract them correctly
             const id = bookingId || data.id;
             const ride_id = rideId || data.ride_id;
             const user_id = userId || data.user_id;
             const payment_price = price || data.price;
+            const email = userEmail || data.email || `user${user_id}@example.com`; // Extract email with fallback
             
-            console.log(`Processing booking-created for booking ${id} with price ${payment_price}`);
+            console.log(`Processing booking-created for booking ${id} with price ${payment_price} and email ${email}`);
             
             const checkoutUrl = await createCheckoutSession({ 
               price: payment_price, 
               user_booking_id: id,
               rideId: ride_id,
-              userId: user_id
+              userId: user_id,
+              email 
             });
             console.log(`Created payment for new booking ${id}, checkout URL: ${checkoutUrl}`);
           }

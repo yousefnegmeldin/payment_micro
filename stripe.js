@@ -4,7 +4,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const APP_URL = "http://localhost:3000";
 
 
-async function createCheckoutSession({ price, user_booking_id, rideId, userId}) {
+async function createCheckoutSession({ price, user_booking_id, rideId, userId, email}) {
   const existingPayment = await prisma.payments.findUnique({
     where: { user_booking_id },
   });
@@ -38,6 +38,7 @@ async function createCheckoutSession({ price, user_booking_id, rideId, userId}) 
       user_booking_id,
       ride_id: rideId,
       user_id: userId,
+      user_email: email,
       status: 'pending',
     },
   });
