@@ -40,14 +40,14 @@ async function startKafkaConsumer() {
       if (!message.value) return;
 
       try {
-        const { bookingId, price } = JSON.parse(message.value.toString());
+        const { bookingId, price,userId,rideId } = JSON.parse(message.value.toString());
 
         if (!bookingId || !price) {
           console.warn('Invalid message received on start-payment:', message.value.toString());
           return;
         }
 
-        await createCheckoutSession({ price, user_booking_id: bookingId });
+        await createCheckoutSession({ price, user_booking_id: bookingId, rideId,userId});
         console.log(`Checkout session created for booking ${bookingId}`);
       } catch (err) {
         console.error('Error handling start-payment event:', err);

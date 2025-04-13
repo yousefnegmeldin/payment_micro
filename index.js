@@ -3,11 +3,13 @@ const bodyParser = require('body-parser');
 const { handleStripeWebhook } = require('./webhook');
 const { createCheckoutSession, isSuccessfulPayment } = require('./stripe');
 const { connectKafkaProducer, startKafkaConsumer } = require('./kafka');
+const { prisma } = require('./db');
 require('dotenv').config();
 
 const app = express();
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
+
 
 app.post('/create-payment', async (req, res) => {
   const { price, user_booking_id } = req.body;
@@ -25,6 +27,16 @@ app.post('/create-payment', async (req, res) => {
     res.status(500).json({ error: 'Something went wrong' });
   }
 });
+
+app.get('/:id/payment-url/', async (req,res)=> {
+  const existingPayment = await prisma.payments.findUnique({
+    where: { user_booking_id: parseInt(req.params.id, 10) },
+  });
+  if(!existingPayment){
+    return res.json({checkoutUrl:null})
+  }
+  return res.json({checkoutUrl: existingPayment.checkout_url});
+})
 
 const PORT = process.env.PORT || 4002;
 

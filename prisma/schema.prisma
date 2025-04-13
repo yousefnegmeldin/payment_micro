@@ -1,57 +1,10 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["clientExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URI")
-}
-
-model Booking {
-  id               Int       @id @default(autoincrement())
-  ride_id          Int
-  user_id          Int
-  price            Int
-  successful       Boolean   @default(false)
-  meeting_point_id Int?
-  status           Status    @default(PENDING)
-  LocalRide        LocalRide @relation(fields: [ride_id], references: [id])
-}
-
-model LocalRide {
-  id                    Int                     @id
-  driver_id             Int
-  departure_time        DateTime
-  seats_available       Int
-  status                RideStatus              @default(PENDING)
-  girls_only            Boolean                 @default(false)
-  to_giu                Boolean
-  area_id               Int
-  Booking               Booking[]
-  LocalRideMeetingPoint LocalRideMeetingPoint[]
-  LocalRidePassenger    LocalRidePassenger[]
-}
-
-model LocalRideMeetingPoint {
-  id               Int       @id @default(autoincrement())
-  ride_id          Int
-  meeting_point_id Int
-  price            Int
-  order_index      Int
-  LocalRide        LocalRide @relation(fields: [ride_id], references: [id], onDelete: Cascade)
-
-  @@unique([ride_id, meeting_point_id])
-}
-
-model LocalRidePassenger {
-  id             Int       @id @default(autoincrement())
-  ride_id        Int
-  passenger_id   Int
-  passenger_name String
-  LocalRide      LocalRide @relation(fields: [ride_id], references: [id], onDelete: Cascade)
-
-  @@unique([ride_id, passenger_id])
 }
 
 model payments {
@@ -60,21 +13,10 @@ model payments {
   stripe_payment_intent_id   String?
   stripe_checkout_session_id String?
   user_booking_id            Int?      @unique(map: "unique_user_booking_id")
+  ride_id                    Int?
+  user_id                    Int?
   checkout_url               String?
   status                     String?
   created_at                 DateTime? @default(now()) @db.Timestamp(6)
 }
 
-enum RideStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-enum Status {
-  PENDING
-  SUCCEEDED
-  FAILED
-  CANCELLED
-}
