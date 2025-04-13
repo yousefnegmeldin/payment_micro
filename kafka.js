@@ -17,6 +17,8 @@ async function connectKafkaProducer() {
 }
 
 async function emitPaymentSucceededEvent({ bookingId, rideId, userId,email }) {
+  console.log("EMAIL IN EMIT PAYMENT SUSCCEEEEDED")
+  console.log(email)
   try {
     console.log(`Emitting payment-succeeded event for booking ${bookingId}`);
     await producer.send({
@@ -74,7 +76,7 @@ async function startKafkaConsumer() {
             // Handle start-payment event
             const { bookingId, price, rideId, userId, email } = data;
             console.log(`Processing start-payment for booking ${bookingId} with price ${price}`);
-            
+            console.log(`TOPIC THAT HAS START PAYMENT ${email}`)
             const checkoutUrl = await createCheckoutSession({ 
               price, 
               user_booking_id: bookingId,
@@ -96,7 +98,7 @@ async function startKafkaConsumer() {
             const email = userEmail || data.email || `user${user_id}@example.com`; // Extract email with fallback
             
             console.log(`Processing booking-created for booking ${id} with price ${payment_price} and email ${email}`);
-            
+            console.log(`TOPIC THAT HAS BOOKING CRAETED ${email}`)
             const checkoutUrl = await createCheckoutSession({ 
               price: payment_price, 
               user_booking_id: id,
