@@ -74,15 +74,15 @@ async function startKafkaConsumer() {
 
           if (topic === 'start-payment') {
             // Handle start-payment event
-            const { bookingId, price, rideId, userId, email } = data;
+            const { bookingId, price, rideId, userId, userEmail } = data;
             console.log(`Processing start-payment for booking ${bookingId} with price ${price}`);
-            console.log(`TOPIC THAT HAS START PAYMENT ${email}`)
+            console.log(`TOPIC THAT HAS START PAYMENT ${userEmail}`)
             const checkoutUrl = await createCheckoutSession({ 
               price, 
               user_booking_id: bookingId,
               rideId,
               userId,
-              email 
+              email: userEmail 
             });
             console.log(`Created payment for booking ${bookingId}, checkout URL: ${checkoutUrl}`);
           } 
