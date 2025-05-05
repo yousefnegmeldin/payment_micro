@@ -26,7 +26,7 @@ async function createCheckoutSession({ price, user_booking_id, rideId, userId, e
       quantity: 1,
     }],
     mode: 'payment',
-    success_url: `${APP_URL}/success?rideId=${rideId}&bookingId=${user_booking_id}`,
+    success_url: `${APP_URL}/payment?rideId=${rideId}&bookingId=${user_booking_id}`,
     cancel_url: `${APP_URL}/cancel`,
   });
 
