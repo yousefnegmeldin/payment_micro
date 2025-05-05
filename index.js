@@ -4,12 +4,18 @@ const { handleStripeWebhook } = require('./webhook');
 const { createCheckoutSession, isSuccessfulPayment } = require('./stripe');
 const { connectKafkaProducer, startKafkaConsumer } = require('./kafka');
 const { prisma } = require('./db');
+const cors = require("cors")
 require('dotenv').config();
 
 const app = express();
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
-
+const corsOptions = {
+  origin: '*', // Allow all origins (you can restrict this to specific domains)
+  methods: ['GET', 'POST'], // Specify allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+};
+app.use(cors(corsOptions))
 
 app.post('/create-payment', async (req, res) => {
   const { price, user_booking_id } = req.body;
