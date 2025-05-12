@@ -5,6 +5,7 @@ const { createCheckoutSession, isSuccessfulPayment } = require('./stripe');
 const { connectKafkaProducer, startKafkaConsumer } = require('./kafka');
 const { prisma } = require('./db');
 const cors = require("cors")
+const { isAdmin } = require('./auth');
 require('dotenv').config();
 
 const app = express();
@@ -43,6 +44,21 @@ app.get('/:id/payment-url/', async (req,res)=> {
   }
   return res.json({checkoutUrl: existingPayment.checkout_url});
 })
+
+app.get('/admin/payments', async (req, res) => {
+  const token = req.headers.authorization.replace('Bearer ', '');
+  if (!token || !(await isAdmin(token))) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  // This route should be protected with admin authentication in a real-world scenario
+  try {
+    const payments = await prisma.payments.findMany();
+    res.json(payments);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch payments' });
+  }
+});
 
 const PORT = process.env.PORT || 4002;
 
