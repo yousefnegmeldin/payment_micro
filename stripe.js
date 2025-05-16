@@ -1,7 +1,7 @@
 const { prisma } = require('./db');
 require('dotenv').config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const APP_URL = "http://localhost:3000";
+const APP_URL = "https://giu-carpool.vercel.app";
 
 
 async function createCheckoutSession({ price, user_booking_id, rideId, userId, email}) {
